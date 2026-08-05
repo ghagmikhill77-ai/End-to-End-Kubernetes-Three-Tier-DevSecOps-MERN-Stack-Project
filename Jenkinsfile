@@ -13,6 +13,7 @@ spec:
     image: mikhill/jenkins-devsecops:v2
     securityContext:
       privileged: true
+      runAsUser: 0
     tty: true
     command:
     - cat
