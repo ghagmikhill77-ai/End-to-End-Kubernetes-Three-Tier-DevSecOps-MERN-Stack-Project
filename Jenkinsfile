@@ -1,89 +1,23 @@
-pipeline {
+- name: docker
+  image: docker:26-dind
 
-    agent {
-        kubernetes {
-            yaml '''
-apiVersion: v1
-kind: Pod
+  securityContext:
+    privileged: true
 
-spec:
+  command:
+  - dockerd-entrypoint.sh
 
-  containers:
+  args:
+  - "--host=tcp://0.0.0.0:2375"
 
-  - name: docker
-    image: docker:26-dind
-    securityContext:
-      privileged: true
+  env:
 
-    command:
-    - dockerd-entrypoint.sh
+  - name: DOCKER_TLS_CERTDIR
+    value: ""
 
-    args:
-    - "--host=tcp://0.0.0.0:2375"
-    - "--host=unix:///var/run/docker.sock"
+  - name: DOCKER_HOST
+    value: "tcp://localhost:2375"
 
-    env:
-    - name: DOCKER_TLS_CERTDIR
-      value: ""
-
-    volumeMounts:
-    - name: docker-storage
-      mountPath: /var/lib/docker
-
-
-  volumes:
-
+  volumeMounts:
   - name: docker-storage
-    emptyDir: {}
-
-'''
-        }
-    }
-
-
-    stages {
-
-
-        stage('Docker Test') {
-
-            steps {
-
-                container('docker') {
-
-                    sh '''
-                    docker version
-                    docker ps
-                    '''
-
-                }
-
-            }
-
-        }
-
-
-        stage('Build Backend') {
-
-            steps {
-
-                container('docker') {
-
-                    dir('backend') {
-
-                        sh '''
-                        docker build -t mikhill/backend:v1 .
-                        '''
-
-                    }
-
-                }
-
-            }
-
-        }
-
-
-    }
-
-
-}
+    mountPath: /var/lib/docker
