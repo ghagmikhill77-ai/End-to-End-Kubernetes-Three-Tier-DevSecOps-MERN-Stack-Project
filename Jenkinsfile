@@ -31,7 +31,6 @@ spec:
     - name: DOCKER_HOST
       value: "tcp://localhost:2375"
 
-
     volumeMounts:
 
     - name: docker-storage
@@ -58,13 +57,9 @@ spec:
                 container('docker') {
 
                     sh '''
-
                     sleep 15
-
                     docker version
-
                     docker ps
-
                     '''
 
                 }
@@ -74,47 +69,48 @@ spec:
         }
 
 
+        stage('Build Backend') {
 
-stage('Build Backend') {
+            steps {
 
-    steps {
+                container('docker') {
 
-        container('docker') {
+                    dir('Application-Code/backend') {
 
-            dir('Application-Code/backend') {
+                        sh '''
+                        docker build -t mikhill/backend:v1 .
+                        '''
 
-                sh '''
+                    }
 
-                docker build -t mikhill/backend:v1 .
-
-                '''
-
-            }
-
-        }
-
-    }
-
-}
-stage('Build Frontend') {
-
-    steps {
-
-        container('docker') {
-
-            dir('Application-Code/frontend') {
-
-                sh '''
-
-                docker build -t mikhill/frontend:v1 .
-
-                '''
+                }
 
             }
 
         }
 
+
+        stage('Build Frontend') {
+
+            steps {
+
+                container('docker') {
+
+                    dir('Application-Code/frontend') {
+
+                        sh '''
+                        docker build -t mikhill/frontend:v1 .
+                        '''
+
+                    }
+
+                }
+
+            }
+
+        }
+
+
     }
 
-}
 }
