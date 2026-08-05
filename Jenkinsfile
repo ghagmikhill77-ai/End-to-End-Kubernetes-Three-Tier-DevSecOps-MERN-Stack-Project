@@ -74,30 +74,46 @@ spec:
         }
 
 
-        stage('Build Backend') {
 
-            steps {
+stage('Build Backend') {
 
-                container('docker') {
+    steps {
 
-                    dir('backend') {
+        container('docker') {
 
-                        sh '''
+            dir('Application-Code/backend') {
 
-                        docker build -t mikhill/backend:v1 .
+                sh '''
 
-                        '''
+                docker build -t mikhill/backend:v1 .
 
-                    }
-
-                }
+                '''
 
             }
 
         }
 
-
     }
 
+}
+stage('Build Frontend') {
+
+    steps {
+
+        container('docker') {
+
+            dir('Application-Code/frontend') {
+
+                sh '''
+
+                docker build -t mikhill/frontend:v1 .
+
+                '''
+
+            }
+
+        }
+
+    }
 
 }
