@@ -117,3 +117,4 @@ stage('Build Frontend') {
     }
 
 }
+}
