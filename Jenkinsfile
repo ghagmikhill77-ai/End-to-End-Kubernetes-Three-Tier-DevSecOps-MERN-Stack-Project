@@ -1,60 +1,97 @@
 pipeline {
 
-    agent {
-        kubernetes {
-            yaml '''
+agent {
+    kubernetes {
+
+yaml '''
 apiVersion: v1
 kind: Pod
+
 spec:
 
   containers:
 
   - name: docker
-    image: mikhill/jenkins-devsecops:v2
+    image: docker:26-dind
     securityContext:
       privileged: true
-      runAsUser: 0
-    tty: true
     command:
-    - cat
+    - dockerd-entrypoint.sh
+    args:
+    - "--host=tcp://0.0.0.0:2375"
+    - "--host=unix:///var/run/docker.sock"
+
+    env:
+    - name: DOCKER_TLS_CERTDIR
+      value: ""
+
     volumeMounts:
-    - name: docker-socket
-      mountPath: /var/run/docker.sock
+    - name: docker-storage
+      mountPath: /var/lib/docker
+
+
+  - name: jnlp
+    image: jenkins/inbound-agent:latest
+
 
   volumes:
 
-  - name: docker-socket
-    hostPath:
-      path: /var/run/docker.sock
+  - name: docker-storage
+    emptyDir: {}
+
 '''
-        }
     }
+}
 
-    stages {
+}
 
-        stage('Test Docker') {
-            steps {
-                container('docker') {
-                    sh '''
-                    docker --version
-                    ls -l /var/run/docker.sock
-                    docker ps
-                    '''
-                }
-            }
-        }
 
-        stage('Build Backend') {
-            steps {
-                container('docker') {
-                    dir('backend') {
-                        sh '''
-                        docker build -t mikhill/backend:v1 .
-                        '''
-                    }
-                }
-            }
-        }
+stages {
 
-    }
+
+stage('Docker Test') {
+
+steps {
+
+container('docker') {
+
+sh '''
+
+docker version
+docker ps
+
+'''
+
+}
+
+}
+
+}
+
+
+stage('Build Backend') {
+
+steps {
+
+container('docker') {
+
+dir('backend') {
+
+sh '''
+
+docker build -t mikhill/backend:v1 .
+
+'''
+
+}
+
+}
+
+}
+
+}
+
+
+}
+
 }
