@@ -1,5 +1,22 @@
 pipeline {
-    agent any
+    agent {
+        kubernetes {
+            yaml """
+apiVersion: v1
+kind: Pod
+spec:
+  containers:
+  - name: docker
+    image: mikhill/jenkins-devsecops:v1
+    command:
+    - cat
+    tty: true
+    securityContext:
+      privileged: true
+"""
+            defaultContainer 'docker'
+        }
+    }
 
     environment {
         DOCKERHUB_CREDENTIALS = 'dockerhub-creds'
