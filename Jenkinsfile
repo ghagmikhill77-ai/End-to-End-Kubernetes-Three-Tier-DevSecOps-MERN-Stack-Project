@@ -1,9 +1,8 @@
 pipeline {
 
-agent {
-    kubernetes {
-
-yaml '''
+    agent {
+        kubernetes {
+            yaml '''
 apiVersion: v1
 kind: Pod
 
@@ -15,8 +14,10 @@ spec:
     image: docker:26-dind
     securityContext:
       privileged: true
+
     command:
     - dockerd-entrypoint.sh
+
     args:
     - "--host=tcp://0.0.0.0:2375"
     - "--host=unix:///var/run/docker.sock"
@@ -30,68 +31,59 @@ spec:
       mountPath: /var/lib/docker
 
 
-  - name: jnlp
-    image: jenkins/inbound-agent:latest
-
-
   volumes:
 
   - name: docker-storage
     emptyDir: {}
 
 '''
+        }
     }
-}
-
-}
 
 
-stages {
+    stages {
 
 
-stage('Docker Test') {
+        stage('Docker Test') {
 
-steps {
+            steps {
 
-container('docker') {
+                container('docker') {
 
-sh '''
+                    sh '''
+                    docker version
+                    docker ps
+                    '''
 
-docker version
-docker ps
+                }
 
-'''
+            }
 
-}
-
-}
-
-}
+        }
 
 
-stage('Build Backend') {
+        stage('Build Backend') {
 
-steps {
+            steps {
 
-container('docker') {
+                container('docker') {
 
-dir('backend') {
+                    dir('backend') {
 
-sh '''
+                        sh '''
+                        docker build -t mikhill/backend:v1 .
+                        '''
 
-docker build -t mikhill/backend:v1 .
+                    }
 
-'''
+                }
 
-}
+            }
 
-}
-
-}
-
-}
+        }
 
 
-}
+    }
+
 
 }
