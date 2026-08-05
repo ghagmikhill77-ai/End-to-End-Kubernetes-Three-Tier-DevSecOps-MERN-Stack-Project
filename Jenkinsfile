@@ -1,3 +1,8 @@
+pipeline {
+
+    agent {
+        kubernetes {
+            yaml '''
 apiVersion: v1
 kind: Pod
 spec:
@@ -15,9 +20,40 @@ spec:
     - name: docker-socket
       mountPath: /var/run/docker.sock
 
-
   volumes:
 
   - name: docker-socket
     hostPath:
       path: /var/run/docker.sock
+'''
+        }
+    }
+
+    stages {
+
+        stage('Test Docker') {
+            steps {
+                container('docker') {
+                    sh '''
+                    docker --version
+                    ls -l /var/run/docker.sock
+                    docker ps
+                    '''
+                }
+            }
+        }
+
+        stage('Build Backend') {
+            steps {
+                container('docker') {
+                    dir('backend') {
+                        sh '''
+                        docker build -t mikhill/backend:v1 .
+                        '''
+                    }
+                }
+            }
+        }
+
+    }
+}
