@@ -7,7 +7,7 @@ kind: Pod
 spec:
   containers:
   - name: docker
-    image: mikhill/jenkins-devsecops:v1
+    image: mikhill/jenkins-devsecops:v2
     command:
     - cat
     tty: true
