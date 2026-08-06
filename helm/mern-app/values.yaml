@@ -1,0 +1,12 @@
+mongodb:
+  image: mongo:7
+  port: 27017
+
+backend:
+  image: mikhill/backend:v1
+  port: 3500
+
+frontend:
+  image: mikhill/frontend:v1
+  port: 3000
+
